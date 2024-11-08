@@ -48,6 +48,10 @@ const DensityFeature: TableFeature<any> = {
     table.toggleDensity = (value) => {
       table.setDensity((old) => {
         if (value) return value
+        console.log({
+          old,
+          new: old === 'lg' ? 'md' : old === 'md' ? 'sm' : 'lg',
+        })
         return old === 'lg' ? 'md' : old === 'md' ? 'sm' : 'lg' //cycle through the 3 options
       })
     }

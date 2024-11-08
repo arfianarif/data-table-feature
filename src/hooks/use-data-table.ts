@@ -14,7 +14,7 @@ import {
   useReactTable,
   type TableFeature,
 } from '@tanstack/react-table'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type useDataTableProps<TData> = {
   data: TData[]
@@ -35,17 +35,17 @@ const useDataTable = <TData>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
 
-  // Gabungkan state internal dengan states yang diterima sebagai props
   const table = useReactTable({
+    _features: [DensityFeature, ...features],
     data,
     columns,
-    _features: [DensityFeature, ...features],
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
-      ...states, // Gabungkan dengan states yang diterima
+      density,
+      ...states,
     },
     debugTable: false,
     onRowSelectionChange: setRowSelection,
@@ -61,8 +61,17 @@ const useDataTable = <TData>({
     onDensityChange: setDensity,
   })
 
+  useEffect(() => {
+    console.log({ table, tableState: table.getState(), density })
+  }, [table, density])
+
   return {
     table,
+    density,
+    sorting,
+    columnFilters,
+    columnVisibility,
+    rowSelection,
   }
 }
 

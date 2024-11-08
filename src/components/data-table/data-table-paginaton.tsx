@@ -21,8 +21,11 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  if (!!table.getRowModel().rows.length) {
+    return null
+  }
   return (
-    <div className='flex items-center justify-between px-2'>
+    <div className='flex items-center justify-between px-4'>
       <div className='flex-1 text-sm text-muted-foreground'>
         {table.getFilteredSelectedRowModel().rows.length} of{' '}
         {table.getFilteredRowModel().rows.length} row(s) selected.

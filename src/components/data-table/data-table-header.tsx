@@ -8,6 +8,7 @@ interface Props {
 }
 
 const DataTableHeader: React.FC<Props> = ({ table, headerStyles = {} }) => {
+  const density = table.getState().density
   return (
     <TableHeader className='bg-muted'>
       {table.getHeaderGroups().map((headerGroup) => (
@@ -16,6 +17,7 @@ const DataTableHeader: React.FC<Props> = ({ table, headerStyles = {} }) => {
             const thClasses = cn(
               'box-border',
               i === 0 ? 'w-[50px]' : '',
+              density === 'sm' ? 'px-2' : density === 'md' ? 'px-4' : 'px-8',
               headerStyles[header.id] || ''
             )
             return (
