@@ -3,25 +3,12 @@
 import DataTable from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import useDataTable from '@/hooks/use-data-table'
-import useDummyDataQuery from '@/hooks/use-dummy-data-query'
-import { useQuery } from '@tanstack/react-query'
+import useManualPagination from '@/hooks/use-manual-pagination'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { getPosts } from '../server/dummy'
 import type { Post, PostResponse } from '../types/post'
 
-const TableWithUseQuery = () => {
-  const { userId, title, pagination } = useDummyDataQuery()
-
-  const {
-    data: postData,
-    error,
-    isLoading,
-  } = useQuery<PostResponse>({
-    queryKey: ['posts', { userId, title, ...pagination }],
-    queryFn: () => getPosts({ userId, title, ...pagination }),
-  })
-
+const TableWithServerActions = ({ data, rowCount }: PostResponse) => {
   const columns = useMemo<ColumnDef<Post>[]>(
     () => [
       {
@@ -72,17 +59,16 @@ const TableWithUseQuery = () => {
     []
   )
 
+  const { pagination } = useManualPagination()
+
   const { table } = useDataTable({
-    data: postData?.data || [],
+    data: data || [],
     columns,
     states: {
       pagination,
     },
-    rowCount: postData?.rowCount,
+    rowCount: rowCount,
   })
-
-  if (isLoading) return <p>Loading...</p>
-  if (error instanceof Error) return <p>Error: {error.message}</p>
 
   return (
     <DataTable
@@ -99,4 +85,4 @@ const TableWithUseQuery = () => {
   )
 }
 
-export default TableWithUseQuery
+export default TableWithServerActions
