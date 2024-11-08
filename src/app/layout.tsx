@@ -1,8 +1,9 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import QueryProvider from '@/components/query-provider'
 import { ThemeProvider } from '@/components/theme-provider'
-import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,14 +25,16 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={cn('w-full min-h-lvh antialiased', inter.className)}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='system'
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )

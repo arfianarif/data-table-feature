@@ -1,8 +1,10 @@
 'use client'
 
+import { formatStringWithSpaces } from '@/lib/string-utils'
+import { FadersHorizontal } from '@phosphor-icons/react'
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { Table } from '@tanstack/react-table'
-import { Settings2 } from 'lucide-react'
+import IconWrapper from '../icon-wrapper'
 import { Button } from '../ui/button'
 import {
   DropdownMenu,
@@ -22,12 +24,8 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant='outline'
-          size='sm'
-          className='ml-auto hidden h-8 lg:flex'
-        >
-          <Settings2 />
+        <Button size={'sm'} variant='outline'>
+          <IconWrapper size={12} icon={FadersHorizontal} />
           View
         </Button>
       </DropdownMenuTrigger>
@@ -36,11 +34,11 @@ export function DataTableViewOptions<TData>({
         <DropdownMenuSeparator />
         {table
           .getAllColumns()
-          .filter(
-            (column) =>
-              typeof column.accessorFn !== 'undefined' && column.getCanHide()
-          )
+          .filter((column) => column.getCanHide())
           .map((column) => {
+            const displayName =
+              column.columnDef.meta?.displayColumnName || column?.id
+            const display = formatStringWithSpaces(displayName)
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
@@ -48,7 +46,7 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {display}
               </DropdownMenuCheckboxItem>
             )
           })}

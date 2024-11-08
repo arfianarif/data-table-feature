@@ -15,7 +15,7 @@ const DataTableBody = <TData,>({
   onRowClick,
 }: Props<TData>) => {
   const density = table.getState().density
-  const classes = cn(
+  const cellClasses = cn(
     'group',
     onRowClick && 'cursor-pointer',
     density === 'sm' ? 'px-2' : density === 'md' ? 'px-4' : 'px-8',
@@ -25,13 +25,9 @@ const DataTableBody = <TData,>({
     <TableBody>
       {table.getRowModel().rows.length ? (
         table.getRowModel().rows.map((row) => (
-          <TableRow
-            key={row.id}
-            onClick={() => onRowClick?.(row.original)}
-            className={classes}
-          >
+          <TableRow key={row.id} onClick={() => onRowClick?.(row.original)}>
             {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
+              <TableCell key={cell.id} className={cellClasses}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}

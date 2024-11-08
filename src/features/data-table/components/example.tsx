@@ -1,26 +1,39 @@
 'use client'
 
+import DataTable from '@/components/data-table/data-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import useDataTable from '@/hooks/use-data-table'
+import useExampleDataFilter from '@/hooks/use-example-data-filter'
+import { useQuery } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
+import { getPosts } from '../server/dummy'
 import type { Post } from '../types/post'
-import DataTable from '@/components/data-table/data-table'
 
-interface Props {
-  data: Post[]
-}
+const ExampleDataTable = () => {
+  const { userId, title, page, pageSize, pagination, setPagination } =
+    useExampleDataFilter()
 
-const ExampleDataTable = ({ data }: Props) => {
+  const {
+    data: postData,
+    error,
+    isLoading,
+  } = useQuery<{
+    data: Post[]
+    totalCount: number
+    rowCount: number
+  }>({
+    queryKey: ['posts', { userId, title, ...pagination }],
+    queryFn: () => getPosts({ userId, title, ...pagination }),
+  })
+
   const columns = useMemo<ColumnDef<Post>[]>(
     () => [
       {
         accessorKey: 'id',
-        meta: {
-          displayColumnName: 'id',
-        },
+        meta: { displayColumnName: 'id' },
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title='id' />
+          <DataTableColumnHeader column={column} title='ID' />
         ),
         cell: ({ row }) => (
           <span className='w-fit max-w-[40px] truncate font-medium'>
@@ -30,11 +43,9 @@ const ExampleDataTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'userId',
-        meta: {
-          displayColumnName: 'userId',
-        },
+        meta: { displayColumnName: 'User ID' },
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title='userId' />
+          <DataTableColumnHeader column={column} title='User ID' />
         ),
         cell: ({ row }) => (
           <span className='min-w-[100px] max-w-[200px] line-clamp-1'>
@@ -44,11 +55,9 @@ const ExampleDataTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'title',
-        meta: {
-          displayColumnName: 'title',
-        },
+        meta: { displayColumnName: 'Title' },
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title='title' />
+          <DataTableColumnHeader column={column} title='Title' />
         ),
         cell: ({ row }) => (
           <span className='min-w-[100px] max-w-[200px] line-clamp-1'>
@@ -58,11 +67,9 @@ const ExampleDataTable = ({ data }: Props) => {
       },
       {
         accessorKey: 'body',
-        meta: {
-          displayColumnName: 'body',
-        },
+        meta: { displayColumnName: 'Body' },
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title='body' />
+          <DataTableColumnHeader column={column} title='Body' />
         ),
         cell: (info) => (info.getValue() as string) || '-',
       },
@@ -70,8 +77,33 @@ const ExampleDataTable = ({ data }: Props) => {
     []
   )
 
-  const { table } = useDataTable({ data, columns })
-  return <DataTable title='Post Lists' table={table} />
+  const { table } = useDataTable({
+    data: postData?.data || [],
+    columns,
+    states: {
+      pageIndex: page - 1,
+      pageSize: pageSize,
+    },
+    setPagination,
+    rowCount: postData?.rowCount,
+  })
+
+  if (isLoading) return <p>Loading...</p>
+  if (error instanceof Error) return <p>Error: {error.message}</p>
+
+  return (
+    <DataTable
+      title='Post Lists'
+      table={table}
+      filters={[
+        { key: 'userId', placeholder: 'Filter userId' },
+        { key: 'title', placeholder: 'Filter title' },
+      ]}
+      showDensity
+      showColumnVisibility
+      showFilterPageSize
+    />
+  )
 }
 
 export default ExampleDataTable
