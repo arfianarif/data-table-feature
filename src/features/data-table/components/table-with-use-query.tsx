@@ -1,32 +1,23 @@
 'use client'
 
-import DataTable from '@/components/data-table/data-table'
+import useDummyDataQuery from '@/hooks/use-dummy-data-query'
+import { useQuery } from '@tanstack/react-query'
+import React, { useMemo } from 'react'
+import type { Post, PostResponse } from '../types/post'
+import { getPosts } from '../server/dummy'
+import type { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import useDataTable from '@/hooks/use-data-table'
-import useExampleDataFilter from '@/hooks/use-example-data-filter'
-import { useQuery } from '@tanstack/react-query'
-import type { ColumnDef } from '@tanstack/react-table'
-import { useMemo } from 'react'
-import { getPosts } from '../server/dummy'
-import type { Post } from '../types/post'
+import DataTable from '@/components/data-table/data-table'
 
-interface Props {
-  data: Post[]
-}
-
-const ExampleDataTable = ({}: Props) => {
-  const { userId, title, page, pageSize, pagination, setPagination } =
-    useExampleDataFilter()
+const TableWithUseQuery = () => {
+  const { userId, title, pagination } = useDummyDataQuery()
 
   const {
     data: postData,
     error,
     isLoading,
-  } = useQuery<{
-    data: Post[]
-    totalCount: number
-    rowCount: number
-  }>({
+  } = useQuery<PostResponse>({
     queryKey: ['posts', { userId, title, ...pagination }],
     queryFn: () => getPosts({ userId, title, ...pagination }),
   })
@@ -95,17 +86,17 @@ const ExampleDataTable = ({}: Props) => {
 
   return (
     <DataTable
-      title='Post Lists'
       table={table}
+      title='Post Lists'
+      showDensity
+      showColumnVisibility
+      showFilterPageSize
       filters={[
         { key: 'userId', placeholder: 'Filter userId' },
         { key: 'title', placeholder: 'Filter title' },
       ]}
-      showDensity
-      showColumnVisibility
-      showFilterPageSize
     />
   )
 }
 
-export default ExampleDataTable
+export default TableWithUseQuery

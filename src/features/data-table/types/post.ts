@@ -4,3 +4,16 @@ export type Post = {
   title: string
   body: string
 }
+
+export type PostResponse = {
+  data: Post[]
+  rowCount: number
+  totalCount: number
+}
+
+export type PostSearchParams = {
+  userId?: string
+  title?: string
+  page?: string
+  pageSize?: string
+}

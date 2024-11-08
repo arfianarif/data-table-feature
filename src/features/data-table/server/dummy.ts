@@ -1,4 +1,4 @@
-import type { Post } from '../types/post'
+import type { Post, PostResponse } from '../types/post'
 
 export const getPosts = async ({
   userId,
@@ -10,11 +10,7 @@ export const getPosts = async ({
   title?: string
   pageIndex?: number
   pageSize?: number
-}): Promise<{
-  data: Post[]
-  rowCount: number
-  totalCount: number
-}> => {
+}): Promise<PostResponse> => {
   try {
     const response = await fetch(
       `https://jsonplaceholder.typicode.com/posts?_page=${pageIndex + 1}`

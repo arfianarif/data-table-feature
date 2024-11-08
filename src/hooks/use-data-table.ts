@@ -17,25 +17,34 @@ import {
   type TableFeature,
 } from '@tanstack/react-table'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type useDataTableProps<TData> = {
   data: TData[]
   columns: ColumnDef<TData, any>[]
-  manualPagination?: boolean
   features?: TableFeature<TData>[]
   states?: Record<string, any>
-  setPagination?: (pagination: PaginationState) => void
   rowCount?: number
 }
 
+/**
+ * Custom hook for managing a data table using `@tanstack/react-table`.
+ *
+ * @template TData - The type of data used in the table.
+ *
+ * @param {TData[]} data - The data to display in the table.
+ * @param {ColumnDef<TData, any>[]} columns - The column definitions for the table.
+ * @param {TableFeature<TData>[]} [features=[]] - Additional table features to include.
+ * @param {Record<string, any>} [states={}] - Initial states for the table.
+ * @param {number} [rowCount] - The total number of rows, used for pagination.
+ *
+ * @returns {object} An object containing the table instance and various states like density, sorting, column filters, column visibility, and row selection.
+ */
 const useDataTable = <TData>({
   data,
   columns,
-  manualPagination = false,
   features = [],
   states = {},
-  setPagination,
   rowCount,
 }: useDataTableProps<TData>) => {
   const router = useRouter()
@@ -50,12 +59,18 @@ const useDataTable = <TData>({
   const handlePaginationChange: OnChangeFn<PaginationState> = (
     updaterOrValue
   ) => {
+    const previousPagination = table.getState().pagination
     const newPagination =
       typeof updaterOrValue === 'function'
         ? updaterOrValue(table.getState().pagination)
         : updaterOrValue
     const params = new URLSearchParams(searchParams.toString())
+    const isPageSizeChanged =
+      newPagination.pageSize !== previousPagination.pageSize
     params.set('page', (newPagination.pageIndex + 1).toString())
+    if (isPageSizeChanged) {
+      params.set('page', '1')
+    }
     params.set('perPage', newPagination.pageSize.toString())
     router.push(`${pathname}?${params.toString()}`)
   }
@@ -73,7 +88,7 @@ const useDataTable = <TData>({
       ...states,
     },
     rowCount: rowCount,
-    debugTable: true,
+    debugTable: false,
     manualPagination: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -88,6 +103,10 @@ const useDataTable = <TData>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     onDensityChange: setDensity,
   })
+
+  useEffect(() => {
+    console.log({ tableOptions: table.options })
+  }, [table])
 
   return {
     table,

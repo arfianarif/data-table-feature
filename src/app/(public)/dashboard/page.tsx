@@ -1,7 +1,5 @@
-import ExampleDataTable from '@/features/data-table/components/example'
-
 const DashboardPage = () => {
-  return <ExampleDataTable />
+  return <span>Dashboard Page</span>
 }
 
 export default DashboardPage
